@@ -2,14 +2,20 @@
 
 from Tkinter import *
 import subprocess
+from subprocess import *
 
 
 global flag
 flag=1
+out=None
+
+
 
 def button1_push():
     global tBox1
     global destbox
+    global fifthframe
+    global sixthframe
     txt1=tBox1.get()
 
     if (flag==0):
@@ -19,12 +25,30 @@ def button1_push():
         out=destext
     print("the file is "+txt1)
     command="hspice "+"-i "+ txt1+" -o "+out+".lis"
-    print(command)
-    subprocess.call(command,shell=True)
+    #print(command)
+    #str=subprocess.call(command,shell=True)
+    #print (str)
+    p=Popen(command,shell=True,stderr=PIPE,stdout=PIPE)
+    out = p.stdout.read()
+    err = p.stderr.read()
+    print(out + "\n" + err + "\n" )
+    status = Label(fifthframe,text=out,width=100, justify=CENTER, fg='Brown')
+    status.pack()
+    if err=="":
+        errout="Simulation Succesfull!!!!"
+    else:
+        errout=err
+    error = Label(sixthframe,text=errout, width=100, justify=CENTER, fg='Red')
+    error.pack()
+
+
+
+
+
 
 def create_tbox(parent):
     global tBox1
-    tBox1= Entry(parent)
+    tBox1= Entry(parent,width=50)
     tBox1.pack(side=LEFT)
 
 def yesradio():
@@ -46,10 +70,14 @@ def main():
     global tBox1
     global thirdframe
     global destbox
+    global out
+    global fifthframe
+    global sixthframe
 
     root=Tk()
+    root.title("UI_HSPICE_LINUX")
 
-    w = Label(root, text="Welcome to Hspice gui for Centos")
+    w = Label(root, text="Welcome to Hspice UI")
     w.pack()
 
     topframe=Frame(root)
@@ -62,7 +90,13 @@ def main():
     thirdframe.pack(side=TOP)
 
     fourthframe=Frame(root)
-    fourthframe.pack()
+    fourthframe.pack(side=TOP)
+
+    fifthframe=Frame(root)
+    fifthframe.pack(side=TOP)
+
+    sixthframe = Frame(root)
+    sixthframe.pack(side=TOP)
 
 
     fileText=Label(topframe,text="Input File(Full Path): ")
@@ -82,6 +116,17 @@ def main():
 
     button1=Button(fourthframe,text="simulate",command=button1_push)
     button1.pack(side=TOP)
+
+
+
+
+
+
+    cright=Label(root,text="developed by : Subed Lamichhane",fg='Blue',justify=CENTER)
+    cright.pack()
+
+
+
 
 
     root.mainloop()
